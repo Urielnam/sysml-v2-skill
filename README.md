@@ -4,6 +4,76 @@ An industrial-grade Model-Based Systems Engineering (MBSE) plugin and skill pack
 
 ---
 
+## Installation & Setup
+
+### 1. Install the Plugin / Skill
+
+#### Option A: Global Plugin Installation (Recommended — Available in All Workspaces)
+Clone this repository directly into your global Antigravity plugins directory (`~/.gemini/config/plugins/sysml-v2`), then restart the IDE/agent session so the plugin is discovered:
+
+**Windows (PowerShell):**
+```powershell
+New-Item -ItemType Directory -Force -Path "$HOME\.gemini\config\plugins" | Out-Null
+git clone https://github.com/Urielnam/sysml-v2-skill.git "$HOME\.gemini\config\plugins\sysml-v2"
+```
+
+**macOS / Linux (Bash):**
+```bash
+mkdir -p ~/.gemini/config/plugins
+git clone https://github.com/Urielnam/sysml-v2-skill.git ~/.gemini/config/plugins/sysml-v2
+```
+
+#### Option B: Workspace-Scoped Skill Installation (Project-Specific)
+To bundle the skill inside a single project repository so it is version-controlled with your team's model under `.agents/skills/sysml-v2`:
+
+**Windows (PowerShell):**
+```powershell
+New-Item -ItemType Directory -Force -Path ".agents\skills" | Out-Null
+git clone https://github.com/Urielnam/sysml-v2-skill.git _tmp_sysml
+Move-Item "_tmp_sysml\skills\sysml-v2" ".agents\skills\sysml-v2"
+Remove-Item -Recurse -Force _tmp_sysml
+```
+
+**macOS / Linux (Bash):**
+```bash
+mkdir -p .agents/skills
+git clone https://github.com/Urielnam/sysml-v2-skill.git _tmp_sysml
+mv _tmp_sysml/skills/sysml-v2 .agents/skills/sysml-v2
+rm -rf _tmp_sysml
+```
+
+---
+
+### 2. Install Toolchain Prerequisites
+
+To validate `.sysml` models and compile the printable vector PDF Architecture Atlas, install the following local tools:
+
+1. **Spec42 SysML v2 Compiler & VS Code Extension**:
+   - Install the **Spec42** extension (`elan8.spec42`) from the VS Code Marketplace.
+   - The CLI binary is automatically placed at:
+     `~/.vscode/extensions/elan8.spec42-*/server/win32-x64/spec42.exe`
+2. **Python 3.10+ & `pypdf`**:
+   ```powershell
+   pip install pypdf
+   ```
+3. **Graphviz (`dot` layout engine)**:
+   - **Windows**: `winget install Graphviz.Graphviz` (default path: `C:\Program Files\Graphviz\bin\dot.exe`)
+   - **macOS**: `brew install graphviz`
+   - **Linux**: `sudo apt install graphviz`
+4. **Microsoft Edge** (used in headless mode `--headless --print-to-pdf` to preserve vector graphics and clickable PDF hyperlinks).
+
+---
+
+### 3. Verify Installation
+
+1. Restart your Antigravity session so `sysml-v2` appears in your active skills list.
+2. Test the Atlas Generator CLI help:
+   ```powershell
+   python "$HOME\.gemini\config\plugins\sysml-v2\skills\sysml-v2\scripts\sysml_atlas_generator.py" --help
+   ```
+
+---
+
 ## Repository Structure
 
 ```text
