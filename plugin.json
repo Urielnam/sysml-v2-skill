@@ -1,5 +1,5 @@
 {
   "name": "sysml-v2",
   "description": "Author, validate, and architect complex Systems Modeling Language v2 (SysML v2) models and printable vector PDF Architecture Atlases with Spec42 toolchain integration.",
-  "version": "2.0.0"
+  "version": "2.1.0"
 }

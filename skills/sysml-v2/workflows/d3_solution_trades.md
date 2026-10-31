@@ -1,59 +1,61 @@
-# Stage 4 Playbook: Domain 3 — $N$-Candidate Trade Space, COTS Grounding, & Pugh Selection
+# Stage 4 Playbook: Domain 3 — Progressive Execution of $N$-Candidate Trade Space & Pugh Selection
 
 **Target File**: `D3_SolutionCandidates.sysml`  
 **Package Name**: `package D3_SolutionCandidates`
 
 ---
 
-## 1. Full $N$-Candidate Trade Space Persistence Rule
+## 1. CRITICAL EXECUTION RULE: Strict Micro-Step Sequentiality
 
-When exploring ways to fulfill each generalized functionality (`GSF-01`..`GSF-06`):
-* Generate **$N$ distinct solution candidates per functionality** (typically $N = 6$ candidates per functionality, or any user-specified $N$).
-* **Persist all $N$ candidates in `D3_SolutionCandidates.sysml`** as `part def <CandidateName> :> SolutionCandidate` so that `sysml_atlas_generator.py` renders all $N$ columns in the Architectural Trade Comparison Matrices (View Rule 34).
-* Assign each candidate an explicit `CandidateStatus`:
-  * `CandidateStatus::Winner` (Top-scoring selected baseline for this functionality)
-  * `CandidateStatus::RunnerUp` (Second-place viable alternative)
-  * `CandidateStatus::Pruned` (Conceptually viable but outscored on cost/complexity/power)
-  * `CandidateStatus::Rejected` (Violates hard safety, regulatory, or physical requirement)
+Domain 3 consists of **2 strictly sequential micro-steps**:
+$$\text{4.1 } N\text{-Candidate Generation & COTS Grounding} \xrightarrow{\text{commit + spec42}} \text{4.2 Pugh Selection, Integrated Baseline & Satisfy Matrix}$$
+
+* **NEVER** start Step 4.1 until `D2_Capabilities.sysml` (with all Functionalities and Requirements) has been committed and validated by `spec42 check .` with 0 errors!
+* **NEVER** synthesize the Integrated System Baseline (Step 4.2) until all $N$ candidates per functionality from Step 4.1 have been evaluated, written to `D3_SolutionCandidates.sysml`, and validated by `spec42 check .`!
 
 ---
 
-## 2. Step-by-Step Execution Sequence
+## 2. Progressive Micro-Step Sequence
 
-### Step 4.1: Generate & Evaluate $N$ Candidates per Functionality
-1. Spawn **Solution Architecture & COTS Trade Specialist** subagents (up to 3 concurrently, e.g., 1 per 2 functionalities).
-2. For each generalized functionality, model all $N$ candidates (`part def <Name> :> SolutionCandidate`) with:
-   * `candidateId` (e.g., `"CAND-01-WIN"`, `"CAND-01-RUN"`, `"CAND-01-C3"`, etc.)
-   * `candidateName`, `status`, `primaryFunctionality`
-   * `bomCostUsd`, `diyAssemblyTimeMinutes`, `maturityTrl`, `verifiedDatasheetLink`
-   * `rationale` (Why it won, or specific technical/economic deficit why it was pruned/rejected)
-   * Environmental sensitivity profiles: `sensitivityMiddaySun`, `sensitivityFreezingFogNight`, `sensitivityHighWindStorm`, `sensitivityEmergencyEvacuation`
-   * Quantitative Pugh scores (`0–100`): `pughPerformanceScore`, `pughCostScore`, `pughFeasibilityScore`, `pughMaintenanceScore`, and weighted `tradeScore`.
-
-### Step 4.2: COTS Bill of Materials Breakdown
-1. For the **Winner** and **RunnerUp** candidates (and optionally pruned candidates), declare nested `part <partUsage> : COTSComponent` blocks with real, in-stock commercial off-the-shelf hardware:
-   * `partName`, `manufacturerPartNumber`, `manufacturer`, `distributor`
-   * `verifiedProductLink` (Clickable URL to DigiKey, Mouser, McMaster-Carr, Adafruit, etc.)
-   * `unitCostUsd`, `maturityTrl`, `assemblyTimeMinutes`, `keyTechnicalSpec`
-
-### Step 4.3: Integrated System Baseline & Formal `satisfy` Matrix Links
-1. Define the resulting integrated system (`part def Integrated<System>Candidate :> SolutionCandidate`) with `primaryFunctionality = "IntegratedSystem";` composing the winning sub-assemblies and verifying total BoM CapEx, 5-year LCC, and total DIY assembly time against `RG-06` constraints.
-2. Instantiate part usages and declare explicit `satisfy <requirementUsage> by <candidateUsage>;` statements for every requirement each candidate satisfies.
-   * The dynamic matrix engine in `sysml_atlas_generator.py` uses these `satisfy` statements to populate `PASS (Selected)`, `PASS (Compliant)`, and `DEFICIT / PRUNED` cells across all $N$ candidate columns in View Rule 34!
-
----
-
-## 3. Final Compiler & Printable PDF Atlas Verification Gate
-
-1. Run Spec42 validation:
+### Micro-Step 4.1: Generate & Persist $N$ Candidates per Functionality + COTS BoMs
+1. **Spawn (Horizontal Parallelism Allowed — Up to 3 Concurrent Subagents)**:
+   * Passing the validated Functionalities and Requirements from `D2_Capabilities.sysml`, spawn up to 3 **Solution Architecture & COTS Trade Specialist** subagents in parallel (e.g., Agent 1 for `GSF-01..02`, Agent 2 for `GSF-03..04`, Agent 3 for `GSF-05..06`).
+   * Wait for all subagents in the batch to finish before proceeding.
+2. **Process Output**:
+   * For each generalized functionality, generate **$N$ distinct solution candidates** (default $N = 6$ per functionality, or any user-specified $N$).
+   * Persist **all $N$ candidates** as `part def <CandidateName> :> SolutionCandidate` with:
+     * `candidateId`, `candidateName`, `status` (`Winner`, `RunnerUp`, `Pruned`, `Rejected`), `primaryFunctionality`
+     * `bomCostUsd`, `diyAssemblyTimeMinutes`, `maturityTrl`, `verifiedDatasheetLink`, `rationale`
+     * Environmental sensitivity profiles (`sensitivityMiddaySun`, `sensitivityFreezingFogNight`, `sensitivityHighWindStorm`, `sensitivityEmergencyEvacuation`)
+     * Quantitative Pugh scores (`pughPerformanceScore`, `pughCostScore`, `pughFeasibilityScore`, `pughMaintenanceScore`, `tradeScore`)
+   * For `Winner` and `RunnerUp` candidates, include nested `part <partUsage> : COTSComponent` blocks with real MPNs, distributors, unit prices, and clickable product links.
+3. **Commit to `D3_SolutionCandidates.sysml` & Run Hard Gate 4.1**:
    ```powershell
    & "C:\Users\yurie\.vscode\extensions\elan8.spec42-0.57.0\server\win32-x64\spec42.exe" check .
    ```
-2. Run the Canonical Architecture Atlas Generator:
+   **Verify 0 errors.** Only after this passes may you start Micro-Step 4.2.
+
+---
+
+### Micro-Step 4.2: Integrated System Baseline & Formal `satisfy` Traceability Matrix
+1. **Synthesize & Commit**:
+   * Define `part def Integrated<System>Candidate :> SolutionCandidate` (`primaryFunctionality = "IntegratedSystem"`) composing the winning modular sub-assemblies from Micro-Step 4.1, rolling up total BoM CapEx, 5-year LCC, and total DIY assembly time against `RG-06`.
+   * Instantiate candidate part usages (`part <candUsage> : <CandDef> { perform <funcUsage>; }`) and declare explicit `satisfy <requirementUsage> by <candidateUsage>;` statements for every requirement each candidate satisfies.
+2. **Hard Gate 4.2 (Validate Complete Workspace)**:
    ```powershell
-   python "<skill_dir>/scripts/sysml_atlas_generator.py" --model-dir . --output-pdf architecture_atlas_canonical.pdf
+   & "C:\Users\yurie\.vscode\extensions\elan8.spec42-0.57.0\server\win32-x64\spec42.exe" check .
    ```
-3. Verify in the audit report:
-   * **100.0% Node Coverage** and **100.0% Edge Coverage**
-   * **0 Unrefined Error Blocks** (all Tier 1 abstractions have Tier 2 specializations)
-   * **All $N$-Candidate Trade Matrices (Rule 34) and Master Pugh Matrix (Rule 35)** rendered with live clickable links.
+   **Verify 0 errors and 0 warnings.**
+
+---
+
+## 3. Final Printable Vector PDF Architecture Atlas Gate
+
+Once Gate 4.2 passes with 0 errors, run the bundled Atlas Generator:
+```powershell
+python "C:\Users\yurie\.gemini\config\plugins\sysml-v2\skills\sysml-v2\scripts\sysml_atlas_generator.py" `
+  --model-dir "." `
+  --output-pdf "architecture_atlas_canonical.pdf" `
+  --diagrams-dir "diagrams_canonical"
+```
+Confirm **100.0% Node Coverage**, **100.0% Edge Coverage**, **0 Unrefined Error Blocks**, and all **$N$-Candidate Trade Matrices (Rule 34) & Master Pugh Matrix (Rule 35)** in the compiled PDF.
